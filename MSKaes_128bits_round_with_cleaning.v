@@ -14,12 +14,14 @@ module MSKaes_128bits_round_with_cleaning
     sh_key_out,
     sh_state_SR_out,
     sh_state_AK_out,
-    rnd_bus0w,
-    rnd_bus1w,
-    rnd_bus2w,
-`ifdef CANRIGHT_SBOX 
-    rnd_bus3w,
-`endif
+//     rnd_bus0w,
+//     rnd_bus1w,
+//     rnd_bus2w,
+// `ifdef CANRIGHT_SBOX 
+//     rnd_bus3w,
+// `endif
+    RandomZw,
+    RandomBw,
     cleaning_on
 );
 
@@ -35,12 +37,16 @@ output [128*d-1:0] sh_key_out;
 output [128*d-1:0] sh_state_SR_out;
 output [128*d-1:0] sh_state_AK_out;
 
-input [20*rnd_bus0-1:0] rnd_bus0w;
-input [20*rnd_bus1-1:0] rnd_bus1w;
-input [20*rnd_bus2-1:0] rnd_bus2w;
-`ifdef CANRIGHT_SBOX
-input [20*rnd_bus3-1:0] rnd_bus3w;
-`endif
+// input [20*rnd_bus0-1:0] rnd_bus0w;
+// input [20*rnd_bus1-1:0] rnd_bus1w;
+// input [20*rnd_bus2-1:0] rnd_bus2w;
+// `ifdef CANRIGHT_SBOX
+// input [20*rnd_bus3-1:0] rnd_bus3w;
+// `endif
+
+input [20*rnd_busz-1:0] RandomZw;
+
+input [20*rnd_busb-1:0] RandomBw;
 
 input cleaning_on;
 
@@ -68,12 +74,14 @@ KS_mod(
     .sh_key_in(sh_key_in_cleaned),
     .sh_key_out(sh_key_out),
     .sh_RCON_in(sh_RCON),
-    .rnd_bus0w(rnd_bus0w[0 +: 4*rnd_bus0]),
-    .rnd_bus1w(rnd_bus1w[0 +: 4*rnd_bus1]),
-    .rnd_bus2w(rnd_bus2w[0 +: 4*rnd_bus2])
-`ifdef CANRIGHT_SBOX
-    ,.rnd_bus3w(rnd_bus3w[0 +: 4*rnd_bus3])
-`endif
+    .RandomZw(RandomZw[0 +: 4*rnd_busz]),
+    .RandomBw(RandomBw[0 +: 4*rnd_busb])
+//     .rnd_bus0w(rnd_bus0w[0 +: 4*rnd_bus0]),
+//     .rnd_bus1w(rnd_bus1w[0 +: 4*rnd_bus1]),
+//     .rnd_bus2w(rnd_bus2w[0 +: 4*rnd_bus2])
+// `ifdef CANRIGHT_SBOX
+//     ,.rnd_bus3w(rnd_bus3w[0 +: 4*rnd_bus3])
+// `endif
 );
 
 // AK
@@ -101,12 +109,14 @@ SB_unit(
     .clk(clk),
     .sh_state_in(sh_postAK_cleaned),
     .sh_state_out(sh_postSB),
-    .rnd_bus0w(rnd_bus0w[4*rnd_bus0 +: 16*rnd_bus0]),
-    .rnd_bus1w(rnd_bus1w[4*rnd_bus1 +: 16*rnd_bus1]),
-    .rnd_bus2w(rnd_bus2w[4*rnd_bus2 +: 16*rnd_bus2])
-`ifdef CANRIGHT_SBOX
-    ,.rnd_bus3w(rnd_bus3w[4*rnd_bus3 +: 16*rnd_bus3])
-`endif
+    .RandomZw(RandomZw[4*rnd_busz +: 16*rnd_busz]),
+    .RandomBw(RandomBw[4*rnd_busb +: 16*rnd_busb])
+//     .rnd_bus0w(rnd_bus0w[4*rnd_bus0 +: 16*rnd_bus0]),
+//     .rnd_bus1w(rnd_bus1w[4*rnd_bus1 +: 16*rnd_bus1]),
+//     .rnd_bus2w(rnd_bus2w[4*rnd_bus2 +: 16*rnd_bus2])
+// `ifdef CANRIGHT_SBOX
+//     ,.rnd_bus3w(rnd_bus3w[4*rnd_bus3 +: 16*rnd_bus3])
+// `endif
 );
 
 // SR 

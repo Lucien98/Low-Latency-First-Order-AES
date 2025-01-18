@@ -23,12 +23,14 @@ module MSKaes_128bits_round_based
     sh_key,
     sh_ciphertext,
     // Randomness busses (required for the Sboxes)
-    rnd_bus0w,
-    rnd_bus1w,
-    rnd_bus2w
-`ifdef CANRIGHT_SBOX
-    ,rnd_bus3w
-`endif
+    RandomZw,
+    RandomBw
+//     rnd_bus0w,
+//     rnd_bus1w,
+//     rnd_bus2w
+// `ifdef CANRIGHT_SBOX
+//     ,rnd_bus3w
+// `endif
 );
 
 `include "design.vh"
@@ -53,15 +55,19 @@ input [128*d-1:0] sh_key;
 output [128*d-1:0] sh_ciphertext;
 
 
-input [20*rnd_bus0-1:0] rnd_bus0w;
+input [20*rnd_busz-1:0] RandomZw;
 
-input [20*rnd_bus1-1:0] rnd_bus1w;
+input [20*rnd_busb-1:0] RandomBw;
 
-input [20*rnd_bus2-1:0] rnd_bus2w;
-`ifdef CANRIGHT_SBOX
+// input [20*rnd_bus0-1:0] rnd_bus0w;
 
-input [20*rnd_bus3-1:0] rnd_bus3w;
-`endif
+// input [20*rnd_bus1-1:0] rnd_bus1w;
+
+// input [20*rnd_bus2-1:0] rnd_bus2w;
+// `ifdef CANRIGHT_SBOX
+
+// input [20*rnd_bus3-1:0] rnd_bus3w;
+// `endif
 
 ///// Control pipe for the round
 wire [7:0] ctrl_RCON_in, ctrl_RCON_KS, ctrl_RCON_out;
@@ -98,13 +104,15 @@ round_logic(
     .sh_key_out(round_sh_key_out),
     .sh_state_SR_out(round_sh_state_SR_out),
     .sh_state_AK_out(round_sh_state_AK_out),
-    .rnd_bus0w(rnd_bus0w),
-    .rnd_bus1w(rnd_bus1w),
-    .rnd_bus2w(rnd_bus2w),
-`ifdef CANRIGHT_SBOX
-    .rnd_bus3w(rnd_bus3w),
-`endif
-    .cleaning_on(round_cleaning_on)
+    .RandomZw(RandomZw),
+    .RandomBw(RandomBw),
+//     .rnd_bus0w(rnd_bus0w),
+//     .rnd_bus1w(rnd_bus1w),
+//     .rnd_bus2w(rnd_bus2w),
+// `ifdef CANRIGHT_SBOX
+//     .rnd_bus3w(rnd_bus3w),
+// `endif
+    .cleaning_on(/*1'b0*/ round_cleaning_on)
 );
 
 //// Generation of the input control logic 
@@ -147,25 +155,27 @@ sh_zero_mod(
 //// Input mux
 wire fetch_in = ready & valid_in;
 
-wire [128*d-1:0] sh_state_tmp;
-MSKmux #(.d(d),.count(128))
-mux_state_in(
-    .sel(fetch_in),
-    .in_true(sh_plaintext),
-    .in_false(sh_key),
-    .out(sh_state_tmp)
-);
+// wire [128*d-1:0] sh_state_tmp;
+// MSKmux #(.d(d),.count(128))
+// mux_state_in(
+//     .sel(fetch_in),
+//     .in_true(sh_plaintext),
+//     .in_false(sh_zero), // sh_key
+//     .out(sh_state_tmp)
+// );
 
-wire [128*d-1:0] sh_key_tmp;
-MSKmux #(.d(d),.count(128))
-mux_key_in(
-    .sel(fetch_in),
-    .in_true(sh_key),
-    .in_false(sh_plaintext),
-    .out(sh_key_tmp)
-);
+// wire [128*d-1:0] sh_key_tmp;
+// MSKmux #(.d(d),.count(128))
+// mux_key_in(
+//     .sel(fetch_in),
+//     .in_true(sh_key),
+//     .in_false(sh_zero), // sh_plaintext
+//     .out(sh_key_tmp)
+// );
 
 wire [128*d-1:0] sh_feedback_state_choice;
+wire [256*d-1:0] rndfeed;
+assign rndfeed = {RandomZw,RandomBw};
 MSKmux #(.d(d),.count(128))
 mux_feedback_choice(
     .sel(feedback_finish),
@@ -174,21 +184,26 @@ mux_feedback_choice(
     .out(sh_feedback_state_choice)
 );
 
-MSKmux #(.d(d),.count(128))
-mux_feedback_state(
-    .sel(feedback_valid),
-    .in_true(sh_feedback_state_choice),
-    .in_false(sh_state_tmp),
-    .out(to_sh_state)
-);
+// MSKmux #(.d(d),.count(128))
+// mux_feedback_state(
+//     .sel(feedback_valid),
+//     .in_true(sh_feedback_state_choice),
+//     .in_false(sh_state_tmp),
+//     .out(to_sh_state)
+// );
 
-MSKmux #(.d(d),.count(128))
-mux_feedback_key(
-    .sel(feedback_valid),
-    .in_true(round_sh_key_out),
-    .in_false(sh_key_tmp),
-    .out(to_sh_key)
-);
+assign to_sh_state = feedback_valid ? sh_feedback_state_choice : (fetch_in ? sh_plaintext : sh_feedback_state_choice);//;sh_feedback_state_choice
+
+
+// MSKmux #(.d(d),.count(128))
+// mux_feedback_key(
+//     .sel(feedback_valid),
+//     .in_true(round_sh_key_out),
+//     .in_false(sh_key_tmp /*round_sh_key_out*/),
+//     .out(to_sh_key)
+// );
+
+assign to_sh_key = feedback_valid ? round_sh_key_out : (fetch_in ? sh_key : round_sh_key_out);//sh_key_tmp;
 
 // Rcon input mux
 wire fetch_feedback_RCON = feedback_valid & (~feedback_finish);
@@ -212,7 +227,7 @@ MSKmux #(.d(d),.count(128))
 mux_ciphervalid(
     .sel(cipher_valid),
     .in_true(round_sh_state_AK_out),
-    .in_false(round_sh_state_AK_out),
+    .in_false(sh_zero),//round_sh_state_AK_out
     .out(sh_ciphertext)
 );
 

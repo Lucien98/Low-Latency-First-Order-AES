@@ -10,7 +10,7 @@ module tb_mskaes
 ();
 
 `ifndef LATENCY
-`define LATENCY 5
+`define LATENCY 4
 `endif 
 
 localparam LATENCY = `LATENCY;
@@ -165,7 +165,7 @@ initial begin
     nrst = 1;
     valid_in = 0;
     umsk_plaintext = 128'h0;//340737e0a29831318d305a88a8f64332;
-    umsk_key = 128'h0;//3c4fcf098815f7aba6d2ae2816157e2b;
+    umsk_key = 128'h593847FB7C86CF74A3E54BD76988A510;//3c4fcf098815f7aba6d2ae2816157e2b;
 
     `ifdef behavioral
     rnd_bus0w = 0;
@@ -190,10 +190,10 @@ initial begin
     prng_start_reseed = 1;
     #T;
     prng_start_reseed = 0;
-    #(30*T);
-    // while (!prng_out_valid) begin
-    //     #T;
-    // end
+    // #(40*T);
+    while (!prng_out_valid) begin
+        #T;
+    end
 
     // Start a run
     valid_in = 1;
@@ -204,7 +204,7 @@ initial begin
         #T;
     end
 
-    if (rec_ciphertext == 128'h2e2b34ca59fa4c883b2c8aefd44be966) begin //320b6a19978511dcfb09dc021d842539
+    if (rec_ciphertext == 128'h6584F7DBB46FAA4EE051B044691E256D) begin //320b6a19978511dcfb09dc021d842539 2e2b34ca59fa4c883b2c8aefd44be966
         $display("SUCCESS");
     end else begin
         $display("FAILURE");

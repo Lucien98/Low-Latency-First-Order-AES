@@ -103,7 +103,7 @@ round_logic(
     .sh_state_out(round_sh_state_out),
     .sh_key_out(round_sh_key_out),
     .sh_state_SR_out(round_sh_state_SR_out),
-    .sh_state_AK_out(round_sh_state_AK_out),
+    // .sh_state_AK_out(round_sh_state_AK_out),
     .RandomZw(RandomZw),
     .RandomBw(RandomBw),
 //     .rnd_bus0w(rnd_bus0w),
@@ -126,7 +126,7 @@ reg [7:0] from_RCON;
 MSKreg #(.d(d),.count(128))
 inreg_state(
     .clk(clk),
-    .in(to_sh_state),
+    .in(sh_postAK_cleaned/*to_sh_state*/),
     .out(round_sh_state_in)
 );
 
@@ -136,6 +136,26 @@ inreg_key(
     .in(to_sh_key),
     .out(round_sh_key_in)
 );
+
+// AK
+wire [128*d-1:0] sh_postAK; 
+MSKaes_128bits_AK #(.d(d))
+AKmod(
+    .sh_state_in(to_sh_state),
+    .sh_key_in(to_sh_key),
+    .sh_state_out(sh_postAK)
+);
+
+// SB 
+wire [128*d-1:0] sh_postAK_cleaned;
+MSKmux #(.d(d), .count(128))
+mux_clean_sbox(
+    .sel(round_cleaning_on),
+    .in_true(sh_zero),
+    .in_false(sh_postAK),
+    .out(sh_postAK_cleaned)
+);
+
 
 always@(posedge clk)
 if (~nrst) begin
@@ -226,7 +246,7 @@ assign round_cleaning_on = cipher_valid;
 MSKmux #(.d(d),.count(128))
 mux_ciphervalid(
     .sel(cipher_valid),
-    .in_true(round_sh_state_AK_out),
+    .in_true(round_sh_state_in/*round_sh_state_AK_out*/),
     .in_false(sh_zero),//round_sh_state_AK_out
     .out(sh_ciphertext)
 );

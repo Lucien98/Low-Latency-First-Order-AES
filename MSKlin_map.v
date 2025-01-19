@@ -2,7 +2,8 @@ module MSKlin_map
 #
 (
     parameter d = 2,
-    parameter count = 16
+    parameter count = 16,
+    parameter matrix_sel = 1
 )
 (
 	sh_state_in,
@@ -32,7 +33,7 @@ switch_encoding_in (
 generate
 for(i=0;i<d;i=i+1) begin: lin_map_isnt
 	for(j = 0; j < count; j=j+1) begin: count_inst
-	    lin_map #(.MATRIX_SEL(1))
+	    lin_map #(.MATRIX_SEL(matrix_sel))
 	    input_mapping (
 	        .DataInxDI(shblk_state_in[i*8*count+8*j+:8]),
 	        .DataOutxDO(shblk_state_out[i*8*count+8*j+:8])

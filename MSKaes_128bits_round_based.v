@@ -251,18 +251,18 @@ assign ctrl_RCON_in = from_RCON;
 reg reg_cipher_valid;
 always@(posedge clk)
 if(~nrst) begin
-    reg_cipher_valid <= 0;
+    reg_cipher_valid = 0;
 end else begin
-    reg_cipher_valid <= feedback_finish;
+    reg_cipher_valid = feedback_finish;
 end
-assign cipher_valid = reg_cipher_valid;
+assign cipher_valid = feedback_finish;
 
-assign round_cleaning_on = cipher_valid;
+assign round_cleaning_on = reg_cipher_valid;
 
 MSKmux #(.d(d),.count(128))
 mux_ciphervalid(
     .sel(cipher_valid),
-    .in_true(round_sh_state_in/*round_sh_state_AK_out*/),
+    .in_true(sh_postAK/*round_sh_state_AK_out*/),
     .in_false(sh_zero),//round_sh_state_AK_out
     .out(sh_ciphertext)
 );

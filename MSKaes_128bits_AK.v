@@ -20,11 +20,6 @@ wire  [128*d-1:0] sh_postAK;
 
 output [128*d-1:0] sh_state_out;
 
-// MSKlin_map #(.d(d), .count(16))
-// lin_map(
-//     .sh_state_in(sh_postAK),
-//     .sh_state_out(sh_state_out)
-//     );
 MSKxor #(.d(d), .count(128))
 xor_add_AK(
     .ina(sh_state_in),

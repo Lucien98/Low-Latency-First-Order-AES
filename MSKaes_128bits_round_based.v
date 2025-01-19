@@ -133,9 +133,18 @@ inreg_state(
 MSKreg #(.d(d),.count(128))
 inreg_key(
     .clk(clk),
-    .in(to_sh_key),
+    .in(/*to_sh_key*/ sh_key_postLM),
     .out(round_sh_key_in)
 );
+
+wire [128*d-1:0] sh_key_postLM; 
+assign sh_key_postLM[0 +: 12*8*d] = to_sh_key[0 +: 12*8*d];
+
+MSKlin_map #(.d(d), .count(4))
+lin_map_key(
+    .sh_state_in(to_sh_key[12*8*d +: 4*8*d]),
+    .sh_state_out(sh_key_postLM[12*8*d +: 4*8*d])
+    );
 
 // AK
 wire [128*d-1:0] sh_postAK; 
@@ -146,13 +155,20 @@ AKmod(
     .sh_state_out(sh_postAK)
 );
 
+wire [128*d-1:0] sh_postLM;
+MSKlin_map #(.d(d), .count(16))
+lin_map(
+    .sh_state_in(sh_postAK),
+    .sh_state_out(sh_postLM)
+    );
+
 // SB 
 wire [128*d-1:0] sh_postAK_cleaned;
 MSKmux #(.d(d), .count(128))
 mux_clean_sbox(
     .sel(round_cleaning_on),
     .in_true(sh_zero),
-    .in_false(sh_postAK),
+    .in_false(sh_postLM),
     .out(sh_postAK_cleaned)
 );
 

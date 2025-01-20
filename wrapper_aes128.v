@@ -11,7 +11,7 @@
 `define DEFAULTSHARES 2
 `endif
 `ifndef DEFAULTLATENCY
-`define DEFAULTLATENCY 4
+`define DEFAULTLATENCY 3
 `endif
 
 module wrapper_aes128

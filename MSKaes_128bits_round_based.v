@@ -123,10 +123,19 @@ wire [128*d-1:0] to_sh_state, to_sh_key;
 wire [8*d-1:0] to_RCON;
 reg [7:0] from_RCON;
 
+wire [128*d-1:0] statereg_in;
+MSKmux #(.d(d), .count(128))
+mux_statereg_in(
+    .sel(feedback_finish),
+    .in_true(sh_postAK),
+    .in_false(sh_postAK_cleaned),
+    .out(statereg_in)
+);
+
 MSKreg #(.d(d),.count(128))
 inreg_state(
     .clk(clk),
-    .in(sh_postAK_cleaned/*to_sh_state*/),
+    .in(statereg_in/*to_sh_state*/),
     .out(round_sh_state_in)
 );
 
@@ -255,14 +264,14 @@ if(~nrst) begin
 end else begin
     reg_cipher_valid = feedback_finish;
 end
-assign cipher_valid = feedback_finish;
+assign cipher_valid = reg_cipher_valid;//feedback_finish;
 
 assign round_cleaning_on = reg_cipher_valid;
 
 MSKmux #(.d(d),.count(128))
 mux_ciphervalid(
     .sel(cipher_valid),
-    .in_true(sh_postAK/*round_sh_state_AK_out*/),
+    .in_true(round_sh_state_in/*round_sh_state_AK_out*/),
     .in_false(sh_zero),//round_sh_state_AK_out
     .out(sh_ciphertext)
 );

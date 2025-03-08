@@ -51,38 +51,6 @@ wire prng_out_valid;
 // Clock
 always@(*) #Td clk<=~clk;
 
-// Dut
-// `ifdef behavioral
-//     `include "design.vh"
-//     reg [20*rnd_bus0-1:0] rnd_bus0w;
-//     reg [20*rnd_bus1-1:0] rnd_bus1w;
-//     reg [20*rnd_bus2-1:0] rnd_bus2w;
-//         `ifdef CANRIGHT_SBOX
-//         reg [20*rnd_bus3-1:0] rnd_bus3w;
-//         `endif
-
-//     MSKaes_128bits_round_based 
-//         `ifndef FULLVERIF
-//         #(.d(d),.LATENCY(LATENCY))
-//         `endif
-//     dut(
-//         .nrst(nrst),
-//         .clk(clk),
-//         .valid_in(valid_in),
-//         .ready(ready),
-//         .cipher_valid(cipher_valid),
-//         .sh_plaintext(sh_plaintext),
-//         .sh_key(sh_key),
-//         .sh_ciphertext(sh_ciphertext),
-//         .rnd_bus0w(rnd_bus0w),
-//         .rnd_bus1w(rnd_bus1w),
-//         .rnd_bus2w(rnd_bus2w)
-//         `ifdef CANRIGHT_SBOX 
-//             ,.rnd_bus3w(rnd_bus3w)
-//         `endif
-//     );
-//     assign prng_out_valid = 1'b1;
-// `else
     wrapper_aes128 #(.d(d),.LATENCY(LATENCY))
     dut(
         .nrst(nrst),
@@ -98,7 +66,6 @@ always@(*) #Td clk<=~clk;
         .prng_out_ready(1'b1),
         .prng_out_valid(prng_out_valid)
     );
-// `endif
 
 shbit2shblk #(.d(d),.width(128))
 switch_encoding_dout(
@@ -121,27 +88,6 @@ for(i=0;i<128;i=i+1) begin: bit_c
     assign rec_ciphertext[i] = ^sh_ciphertext[d*i +: d];
 end
 endgenerate
-
-`ifdef behavioral
-// Randomness
-integer seed = 0;
-generate 
-for (i=0;i<20*rnd_bus0;i=i+1) begin: rnd_b_b0
-    always@(posedge clk) rnd_bus0w[i] <= $random(seed);
-end
-for (i=0;i<20*rnd_bus1;i=i+1) begin: rnd_b_b2
-    always@(posedge clk) rnd_bus1w[i] <= $random(seed);
-end
-for (i=0;i<20*rnd_bus2;i=i+1) begin: rnd_b_b3
-    always@(posedge clk) rnd_bus2w[i] <= $random(seed);
-end
-`ifdef CANRIGHT_SBOX
-for (i=0;i<20*rnd_bus3;i=i+1) begin: rnd_b_b4
-    always@(posedge clk) rnd_bus3w[i] <= $random(seed);
-end
-`endif
-endgenerate
-`endif
 
 reg [15:0] counter_simu;
 always@(posedge clk)
@@ -173,15 +119,6 @@ initial begin
     valid_in = 0;
     umsk_plaintext = 128'h0;//340737e0a29831318d305a88a8f64332;
     umsk_key = 128'h593847FB7C86CF74A3E54BD76988A510;//3c4fcf098815f7aba6d2ae2816157e2b;
-
-    `ifdef behavioral
-    rnd_bus0w = 0;
-    rnd_bus1w = 0;
-    rnd_bus2w = 0;
-    `ifdef CANRIGHT_SBOX
-    rnd_bus3w = 0;
-    `endif
-    `endif
 
     prng_start_reseed = 0;
     $display("Ciruit initialized (%d shares).",d);
@@ -215,7 +152,7 @@ initial begin
         $display("SUCCESS");
     end else begin
         $display("FAILURE");
-        //$finish;
+        $finish;
     end
     $display("Finish (%d cycles)",counter_simu);
     $fwrite(f,"SUCCESS"); 

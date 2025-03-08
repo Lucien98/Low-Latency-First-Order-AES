@@ -1,5 +1,4 @@
 
-`define CANRIGHT_SBOX
 module MSKaes_128bits_KS_round
 #
 (
@@ -16,12 +15,6 @@ module MSKaes_128bits_KS_round
     // Randomness
     RandomZw,
     RandomBw
-//     rnd_bus0w,
-//     rnd_bus1w,
-//     rnd_bus2w
-// `ifdef CANRIGHT_SBOX
-//     ,rnd_bus3w
-// `endif
 );
 
 `include "design.vh"
@@ -33,12 +26,6 @@ input [128*d-1:0] sh_key_in;
 output [128*d-1:0] sh_key_out;
 input [8*d-1:0] sh_RCON_in;
 
-// input [4*rnd_bus0-1:0] rnd_bus0w;
-// input [4*rnd_bus1-1:0] rnd_bus1w;
-// input [4*rnd_bus2-1:0] rnd_bus2w;
-// `ifdef CANRIGHT_SBOX 
-// input [4*rnd_bus3-1:0] rnd_bus3w;
-// `endif
 input [4*rnd_busz-1:0] RandomZw;
 
 input [4*rnd_busb-1:0] RandomBw;
@@ -65,17 +52,6 @@ for(i=0;i<16;i=i+1) begin: byte_in
 end
 endgenerate
 
-//wire sh_key_toSB
-//// Create the Input Mapping
-//generate
-//for(i=0;i<count;i=i+1) begin: sbox_isnt
-//    lin_map #(.MATRIX_SEL(1))
-//    input_mapping (
-//        .DataInxDI(sh_byte_in[i]),
-//        .DataOutxDO(sh_byte_out[i])
-//    );
-//end
-//endgenerate
 // Sbox for the key scheduling
 wire [8*d-1:0] sh_lcol_SB [3:0];
 generate
@@ -86,10 +62,6 @@ for(i=0;i<4;i=i+1) begin: sbox_isnt
         .sboxIn(/*sh_byte_in[12+i]*/sh_key_in[(12+i)*8*d +: 8*d]),
         .RandomZw(RandomZw[i*rnd_busz +: rnd_busz]),
         .RandomBw(RandomBw[i*rnd_busb +: rnd_busb]),
-        // .rnd_bus0w(rnd_bus0w[i*rnd_bus0 +: rnd_bus0]),
-        // .rnd_bus1w(rnd_bus1w[i*rnd_bus1 +: rnd_bus1]),
-        // .rnd_bus2w(rnd_bus2w[i*rnd_bus2 +: rnd_bus2]),
-        // .rnd_bus3w(rnd_bus3w[i*rnd_bus3 +: rnd_bus3]),
         .sboxOut(sh_lcol_SB[i])
     );
 end

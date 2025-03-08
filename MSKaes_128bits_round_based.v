@@ -25,12 +25,6 @@ module MSKaes_128bits_round_based
     // Randomness busses (required for the Sboxes)
     RandomZw,
     RandomBw
-//     rnd_bus0w,
-//     rnd_bus1w,
-//     rnd_bus2w
-// `ifdef CANRIGHT_SBOX
-//     ,rnd_bus3w
-// `endif
 );
 
 `include "design.vh"
@@ -58,16 +52,6 @@ output [128*d-1:0] sh_ciphertext;
 input [20*rnd_busz-1:0] RandomZw;
 
 input [20*rnd_busb-1:0] RandomBw;
-
-// input [20*rnd_bus0-1:0] rnd_bus0w;
-
-// input [20*rnd_bus1-1:0] rnd_bus1w;
-
-// input [20*rnd_bus2-1:0] rnd_bus2w;
-// `ifdef CANRIGHT_SBOX
-
-// input [20*rnd_bus3-1:0] rnd_bus3w;
-// `endif
 
 ///// Control pipe for the round
 wire [7:0] ctrl_RCON_in, ctrl_RCON_KS, ctrl_RCON_out;
@@ -106,12 +90,6 @@ round_logic(
     // .sh_state_AK_out(round_sh_state_AK_out),
     .RandomZw(RandomZw),
     .RandomBw(RandomBw),
-//     .rnd_bus0w(rnd_bus0w),
-//     .rnd_bus1w(rnd_bus1w),
-//     .rnd_bus2w(rnd_bus2w),
-// `ifdef CANRIGHT_SBOX
-//     .rnd_bus3w(rnd_bus3w),
-// `endif
     .cleaning_on(/*1'b0*/ round_cleaning_on)
 );
 

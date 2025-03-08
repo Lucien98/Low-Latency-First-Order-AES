@@ -60,13 +60,6 @@ output prng_out_valid;
 output prng_busy;
 
 
-// wire [20*rnd_bus0-1:0] rnd_bus0w;
-// wire [20*rnd_bus1-1:0] rnd_bus1w;
-// wire [20*rnd_bus2-1:0] rnd_bus2w;
-// `ifdef CANRIGHT_SBOX
-// wire [20*rnd_bus3-1:0] rnd_bus3w;
-// `endif
-
 wire [20*rnd_busz-1:0] RandomZw;
 wire [20*rnd_busb-1:0] RandomBw;
 
@@ -89,21 +82,11 @@ aes_core(
     .sh_ciphertext(sh_ciphertext),
     .RandomZw(RandomZw),
     .RandomBw(RandomBw)
-//     .rnd_bus0w(rnd_bus0w),
-//     .rnd_bus1w(rnd_bus1w),
-//     .rnd_bus2w(rnd_bus2w)
-// `ifdef CANRIGHT_SBOX
-//     ,.rnd_bus3w(rnd_bus3w)
-// `endif
 );
 
 /* =========== PRNG =========== */
 localparam NINIT=4*288;
-`ifdef CANRIGHT_SBOX
 localparam RND_AM = 20*(rnd_busz + rnd_busb);
-`else
-localparam RND_AM = 20*(rnd_bus0+rnd_bus1+rnd_bus2);
-`endif
 wire [RND_AM-1:0] rnd; 
 
 prng_top #(.RND(RND_AM),.NINIT(NINIT),.MAX_UNROLL(PRNG_MAX_UNROLL))
@@ -120,11 +103,5 @@ prng_unit(
 
 assign RandomZw = rnd[0 +: 20*rnd_busz];
 assign RandomBw = rnd[20*rnd_busz +: 20*rnd_busb];
-// assign rnd_bus0w = rnd[0 +: 20*rnd_bus0];
-// assign rnd_bus1w = rnd[20*rnd_bus0 +: 20*rnd_bus1];
-// assign rnd_bus2w = rnd[20*(rnd_bus0+rnd_bus1) +: 20*rnd_bus2];
-// `ifdef CANRIGHT_SBOX
-// assign rnd_bus3w = rnd[20*(rnd_bus0+rnd_bus1+rnd_bus2) +: 20*rnd_bus3];
-// `endif
 
 endmodule

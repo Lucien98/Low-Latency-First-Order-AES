@@ -1,4 +1,4 @@
-`include "blind.vh"
+`include "sbox/blind.vh"
 localparam blind_n_rnd = _blind_nrnd(d);
 localparam bcoeff = _bcoeff(d);
 

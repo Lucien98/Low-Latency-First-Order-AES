@@ -8,10 +8,6 @@ module aes_sbox_dom
     sboxIn,
     RandomZw,
     RandomBw,
-    // rnd_bus0w,
-    // rnd_bus1w,
-    // rnd_bus2w,
-    // rnd_bus3w,
     sboxOut
 );
 
@@ -19,25 +15,12 @@ module aes_sbox_dom
 
     input clk;
     input [8*d-1:0] sboxIn;
-    // input [rnd_bus0-1:0] rnd_bus0w;
-    // input [rnd_bus1-1:0] rnd_bus1w;
-    // input [rnd_bus2-1:0] rnd_bus2w;
-    // input [rnd_bus3-1:0] rnd_bus3w;
     input [rnd_busz-1:0] RandomZw;
 
     input [rnd_busb-1:0] RandomBw;
     output [8*d-1:0] sboxOut;
 
     wire [8*d-1 : 0] _XxDI;
-    // wire [2*d*(d-1)-1 : 0] _Zmul1xDI; // for y1 * y0
-    // wire [2*d*(d-1)-1 : 0] _Zmul2xDI; // for 0 * y1
-    // wire [2*d*(d-1)-1 : 0] _Zmul3xDI; // for 0 * y0
-    // wire [d*(d-1)-1 : 0] _Zinv1xDI; // for inverter
-    // wire [d*(d-1)-1 : 0] _Zinv2xDI;
-    // wire [d*(d-1)-1 : 0] _Zinv3xDI;
-    // wire [2*blind_n_rnd-1 : 0] _Binv1xDI; // for inverter
-    // wire [2*blind_n_rnd-1 : 0] _Binv2xDI; // ...
-    // wire [2*blind_n_rnd-1 : 0] _Binv3xDI; // ...
     wire [8*d-1 : 0] _QxDO;
 
     genvar j;
@@ -54,36 +37,12 @@ module aes_sbox_dom
     wire [7:0] in;
     assign in = _XxDI[15:8] ^ _XxDI[7:0];
 
-    // assign _Zmul1xDI = rnd_bus0w[0 +: 2*d*(d-1)];
-    // assign _Zmul2xDI = rnd_bus3w[0 +: 2*d*(d-1)];
-    // assign _Zmul3xDI = rnd_bus3w[2*d*(d-1) +: 2*d*(d-1)];
-
-    // assign _Zinv1xDI = rnd_bus1w[0 +: d*(d-1)];
-    // assign _Zinv2xDI = rnd_bus2w[0 +: d*(d-1)];
-    // assign _Zinv3xDI = rnd_bus2w[d*(d-1) +: d*(d-1)];
-
-
-    // assign _Binv1xDI = rnd_bus1w[d*(d-1) +: 2*blind_n_rnd];
-    // assign _Binv2xDI = rnd_bus2w[2*d*(d-1) +: blind_n_rnd*2];
-    // assign _Binv3xDI = rnd_bus2w[2*(d*(d-1) + blind_n_rnd) +: blind_n_rnd*2];
-
-    aes_sbox #(.PIPELINED(1), .EIGHT_STAGED(0), .SHARES(d))
+    aes_sbox #(.PIPELINED(1), .SHARES(d))
     inst_aes_box (
         .ClkxCI(clk),
-        // .RstxBI(1'b1),
         ._XxDI(_XxDI),
         .RandomZ(RandomZw),
         .RandomB(RandomBw),
-        // ._Zmul1xDI(_Zmul1xDI),
-        // ._Zmul2xDI(_Zmul2xDI),
-        // ._Zmul3xDI(_Zmul3xDI),
-        // ._Zinv1xDI(_Zinv1xDI),
-        // ._Zinv2xDI(_Zinv2xDI),
-        // ._Zinv3xDI(_Zinv3xDI),
-        // // ._Bmul1xDI(_Bmul1xDI),
-        // ._Binv1xDI(_Binv1xDI),
-        // ._Binv2xDI(_Binv2xDI),
-        // ._Binv3xDI(_Binv3xDI),
         ._QxDO(_QxDO)
     );
 endmodule

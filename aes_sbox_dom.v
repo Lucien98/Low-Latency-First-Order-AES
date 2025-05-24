@@ -31,11 +31,11 @@ module aes_sbox_dom
             assign sboxOut[j*d+i] = _QxDO[i*8+j];
         end
     end
-    wire [7:0] out;
-    assign out = _QxDO[15:8] ^ _QxDO[7:0];
+    // wire [7:0] out;
+    // assign out = _QxDO[15:8] ^ _QxDO[7:0];
 
-    wire [7:0] in;
-    assign in = _XxDI[15:8] ^ _XxDI[7:0];
+    // wire [7:0] in;
+    // assign in = _XxDI[15:8] ^ _XxDI[7:0];
 
     aes_sbox #(.PIPELINED(1), .SHARES(d))
     inst_aes_box (

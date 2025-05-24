@@ -1,3 +1,3 @@
 [submodule "sbox_ti"]
 	path = sbox_ti
-	url = ./sbox_ti
+	url = git@github.com:Lucien98/low_latency_aes_sbox.git

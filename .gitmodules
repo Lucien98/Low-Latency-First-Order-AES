@@ -1,3 +1,0 @@
-[submodule "sbox"]
-	path = sbox
-	url = git@github.com:Lucien98/aes_sbox_dom.git

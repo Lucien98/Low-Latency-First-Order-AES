@@ -39,8 +39,8 @@ wire [8*d-1:0] sh_byte_out [15:0];
 //(*mark_debug="true"*)
 // wire [7:0] umsk_byte_out[15:0];
 
-wire [15:0] byte_in[15:0];
-wire [15:0] byte_out[15:0];
+wire [8*d-1:0] byte_in[15:0];
+wire [8*d-1:0] byte_out[15:0];
 
 genvar i;
 genvar j;
@@ -118,7 +118,7 @@ assign guardsS3[15] = sbox_in0S3[15];
 // Create the SBOX
 generate
 for(i=0;i<16;i=i+1) begin: sbox_isnt
-    three_stage_sbox_guards sbox_unit(.in0(byte_in[i][7:0]), .in1(byte_in[i][15:8]), .out0(byte_out[i][7:0]), .out1(byte_out[i][15:8]), .in0S1(sbox_in0S1[i]), .in0S2(sbox_in0S2[i]), .in0S3(sbox_in0S3[i]), .r({RandomZw[i*rnd_busz +: rnd_busz], RandomBw[i*rnd_busb +: rnd_busb], guardsS3[i], guardsS2[i], guardsS1[i]}), .CLK(clk)
+    two_stage_sbox_guards sbox_unit(.in0(byte_in[i][7:0]), .in1(byte_in[i][15:8]), .in2(byte_in[i][23:16]), .in3(byte_in[i][31:24]), .out0(byte_out[i][7:0]), .out1(byte_out[i][15:8]), .out2(byte_out[i][23:16]), .out3(byte_out[i][31:24]), .in0S1(sbox_in0S1[i]), .in0S2(sbox_in0S2[i]), .in0S3(sbox_in0S3[i]), .r({RandomZw[i*rnd_busz +: rnd_busz], RandomBw[i*rnd_busb +: rnd_busb], guardsS3[i], guardsS2[i], guardsS1[i]}), .CLK(clk)
         );
    /* aes_sbox_dom #(.d(d))
     sbox_unit(

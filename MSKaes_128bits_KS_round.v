@@ -62,8 +62,8 @@ for(i=0;i<16;i=i+1) begin: kbyte_in
 end
 endgenerate
 
-wire [15:0] byte_in[3:0];
-wire [15:0] byte_out[3:0];
+wire [8*d-1:0] byte_in[3:0];
+wire [8*d-1:0] byte_out[3:0];
 
 genvar j;
 genvar k;
@@ -84,9 +84,9 @@ wire [ 7:0] guardsS3[3:0];
 
 generate
 for(i=0;i<4;i=i+1) begin: guards
-    assign guardsS1[i] = shblk_key_in[(i+1)*8*d +: 8];//sh_key_byte_pipeline[(i+1) % 16][0][3:0];
-    assign guardsS2[i] = {shblk_key_byte_pipeline[(i+1) % 16][0][7:4], shblk_key_byte_pipeline[(i+2) % 16][0][7:0]};
-    assign guardsS3[i] = shblk_key_byte_pipeline[(i+3) % 16][1][3:0];
+    assign guardsS1[i] = shblk_key_in[(i+1)*8*d +: 4] ^ shblk_key_in[(i+1)*8*d+8 +: 4];//sh_key_byte_pipeline[(i+1) % 16][0][3:0];
+    assign guardsS2[i] = {shblk_key_byte_pipeline[(i+1) % 16][0][7:4] ^ shblk_key_byte_pipeline[(i+1) % 16][0][15:12], shblk_key_byte_pipeline[(i+2) % 16][0][7:0] ^ shblk_key_byte_pipeline[(i+2) % 16][0][15:8]};
+    assign guardsS3[i] = shblk_key_byte_pipeline[(i+3) % 16][1][7:0] ^ shblk_key_byte_pipeline[(i+3) % 16][1][15:8];
 end
 endgenerate
 
@@ -95,7 +95,7 @@ endgenerate
 wire [8*d-1:0] sh_lcol_SB [3:0];
 generate
 for(i=0;i<4;i=i+1) begin: sbox_isnt
-    three_stage_sbox sbox_unit(.in0(byte_in[i][7:0]), .in1(byte_in[i][15:8]), .out0(byte_out[i][7:0]), .out1(byte_out[i][15:8]), .r({RandomZw[i*rnd_busz +: rnd_busz], RandomBw[i*rnd_busb +: rnd_busb], guardsS3[i], guardsS2[i], guardsS1[i]}), .CLK(clk)
+    two_stage_sbox sbox_unit(.in0(byte_in[i][7:0]), .in1(byte_in[i][15:8]), .in2(byte_in[i][23:16]), .in3(byte_in[i][31:24]), .out0(byte_out[i][7:0]), .out1(byte_out[i][15:8]), .out2(byte_out[i][23:16]), .out3(byte_out[i][31:24]), .r({RandomZw[i*rnd_busz +: rnd_busz], RandomBw[i*rnd_busb +: rnd_busb], guardsS3[i], guardsS2[i], guardsS1[i]}), .CLK(clk)
         );
 
 /*

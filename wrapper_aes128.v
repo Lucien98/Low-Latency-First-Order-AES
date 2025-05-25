@@ -8,10 +8,10 @@
 // Masked AES implementation using HPC masking scheme and 128-bit
 // architecture.
 `ifndef DEFAULTSHARES
-`define DEFAULTSHARES 2
+`define DEFAULTSHARES 4
 `endif
 `ifndef DEFAULTLATENCY
-`define DEFAULTLATENCY 3
+`define DEFAULTLATENCY 2
 `endif
 
 module wrapper_aes128

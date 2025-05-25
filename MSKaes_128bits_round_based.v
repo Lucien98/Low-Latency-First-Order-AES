@@ -1,5 +1,5 @@
 `ifndef DEFAULTSHARES
-`define DEFAULTSHARES 2
+`define DEFAULTSHARES 4
 `endif
 `ifndef DEFAULTLATENCY
 `define DEFAULTLATENCY 5
@@ -198,8 +198,8 @@ mux_key_in(
 );
 
 wire [128*d-1:0] sh_feedback_state_choice;
-wire [256*d-1:0] rndfeed;
-assign rndfeed = {RandomZw,RandomBw};
+// wire [256*d-1:0] rndfeed;
+// assign rndfeed = {RandomZw,RandomBw};
 MSKmux #(.d(d),.count(128))
 mux_feedback_choice(
     .sel(feedback_finish),

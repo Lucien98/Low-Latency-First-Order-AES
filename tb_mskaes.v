@@ -5,12 +5,12 @@
 module tb_mskaes 
 #
 (
-    parameter d = 2//`DEFAULTSHARES
+    parameter d = 4//`DEFAULTSHARES
 )
 ();
 
 `ifndef LATENCY
-`define LATENCY 3
+`define LATENCY 2
 `endif 
 
 localparam LATENCY = `LATENCY;

@@ -1,8 +1,8 @@
-`include "sbox/blind.vh"
-localparam blind_n_rnd = _blind_nrnd(d);
-localparam bcoeff = _bcoeff(d);
+// `include "sbox/blind.vh"
+// localparam blind_n_rnd = _blind_nrnd(d);
+// localparam bcoeff = _bcoeff(d);
 
-localparam n_random_z = d*(d-1);
+// localparam n_random_z = d*(d-1);
 // localparam rnd_busz = coeff*n_random_z;
 // localparam rnd_busb = bcoeff*blind_n_rnd;
 

@@ -100,6 +100,8 @@ assign ready = ~feedback_valid;
 wire [128*d-1:0] to_sh_state, to_sh_key;
 wire [8*d-1:0] to_RCON;
 reg [7:0] from_RCON;
+wire [128*d-1:0] sh_postAK; 
+wire [128*d-1:0] sh_postAK_cleaned;
 
 wire [128*d-1:0] statereg_in;
 MSKmux #(.d(d), .count(128))
@@ -117,6 +119,7 @@ inreg_state(
     .out(round_sh_state_in)
 );
 
+wire [128*d-1:0] sh_key_postLM; 
 MSKreg #(.d(d),.count(128))
 inreg_key(
     .clk(clk),
@@ -124,7 +127,6 @@ inreg_key(
     .out(round_sh_key_in)
 );
 
-wire [128*d-1:0] sh_key_postLM; 
 assign sh_key_postLM[0 +: 12*8*d] = to_sh_key[0 +: 12*8*d];
 
 MSKlin_map #(.d(d), .count(4))
@@ -134,7 +136,6 @@ lin_map_key(
     );
 
 // AK
-wire [128*d-1:0] sh_postAK; 
 MSKaes_128bits_AK #(.d(d))
 AKmod(
     .sh_state_in(to_sh_state),
@@ -149,8 +150,10 @@ lin_map(
     .sh_state_out(sh_postLM)
     );
 
+// Constant sharing of 0
+wire [128*d-1:0] sh_zero;
+
 // SB 
-wire [128*d-1:0] sh_postAK_cleaned;
 MSKmux #(.d(d), .count(128))
 mux_clean_sbox(
     .sel(round_cleaning_on),
@@ -167,8 +170,6 @@ end else begin
     from_RCON <= to_RCON;
 end
 
-// Constant sharing of 0
-wire [128*d-1:0] sh_zero;
 MSKcst #(.d(d), .count(128))
 sh_zero_mod(
     .cst(128'b0),

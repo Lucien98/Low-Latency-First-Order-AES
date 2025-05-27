@@ -5,7 +5,7 @@
 module tb_mskaes 
 #
 (
-    parameter d = 4//`DEFAULTSHARES
+    parameter d = 2//`DEFAULTSHARES
 )
 ();
 
@@ -51,7 +51,7 @@ wire prng_out_valid;
 // Clock
 always@(*) #Td clk<=~clk;
 
-    wrapper_aes128 #(.d(d),.LATENCY(LATENCY))
+    wrapper_aes128 #(.d(d*2),.LATENCY(LATENCY))
     dut(
         .nrst(nrst),
         .clk(clk),
@@ -117,8 +117,8 @@ initial begin
     clk = 1;
     nrst = 1;
     valid_in = 0;
-    umsk_plaintext = 128'h0;//340737e0a29831318d305a88a8f64332;
-    umsk_key = 128'h0;//593847FB7C86CF74A3E54BD76988A510;//3c4fcf098815f7aba6d2ae2816157e2b;
+    umsk_plaintext = 128'h340737e0a29831318d305a88a8f64332;//
+    umsk_key = 128'h3c4fcf098815f7aba6d2ae2816157e2b;//  593847FB7C86CF74A3E54BD76988A510
 
     prng_start_reseed = 0;
     $display("Ciruit initialized (%d shares).",d);
@@ -148,7 +148,7 @@ initial begin
         #T;
     end
 
-    if (rec_ciphertext == 128'h2e2b34ca59fa4c883b2c8aefd44be966) begin //320b6a19978511dcfb09dc021d842539 6584F7DBB46FAA4EE051B044691E256D 
+    if (rec_ciphertext == 128'h320b6a19978511dcfb09dc021d842539) begin // 6584F7DBB46FAA4EE051B044691E256D 2e2b34ca59fa4c883b2c8aefd44be966
         $display("SUCCESS");
     end else begin
         $display("FAILURE");

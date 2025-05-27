@@ -2,14 +2,14 @@
 `define DEFAULTSHARES 4
 `endif
 `ifndef DEFAULTLATENCY
-`define DEFAULTLATENCY 5
+`define DEFAULTLATENCY 2
 `endif
 
 module MSKaes_128bits_round_based
 #
 (
     parameter d=`DEFAULTSHARES,
-    parameter LATENCY = 5//`DEFAULTLATENCY
+    parameter LATENCY = 2//`DEFAULTLATENCY
 )
 (
     // Global
@@ -42,16 +42,41 @@ output ready;
 output cipher_valid;
 
 
-input [128*d-1:0] sh_plaintext;
+input [128*d/2-1:0] sh_plaintext;
 
-input [128*d-1:0] sh_key;
+input [128*d/2-1:0] sh_key;
 
-output [128*d-1:0] sh_ciphertext;
+output [128*d/2-1:0] sh_ciphertext;
 
 
 input [20*rnd_busz-1:0] RandomZw;
 
 input [20*rnd_busb-1:0] RandomBw;
+
+wire [128*d-1:0] sh_plaintext_ext;
+
+wire [96*d/2 + 32*d-1:0] sh_key_ext;
+wire [96*d/2 + 32*d-1:0] sh_zero_key;
+
+wire [128*d-1:0] sh_ciphertext_ext;
+
+
+
+genvar i;
+
+for (i = 0; i < 128; i=i+1) begin: plain_cipher_ext
+    assign sh_plaintext_ext[i*4+0] = sh_plaintext[i*2+0];
+    assign sh_plaintext_ext[i*4+1] = 1'b0; // share0 and share1 are compressed
+    assign sh_plaintext_ext[i*4+2] = 1'b0;
+    assign sh_plaintext_ext[i*4+3] = sh_plaintext[i*2+1];
+    assign sh_ciphertext[i*2+0] = sh_ciphertext_ext[i*4+0] ^ sh_ciphertext_ext[i*4+1]; // share0 and share1 are compressed
+    assign sh_ciphertext[i*2+1] = sh_ciphertext_ext[i*4+2] ^ sh_ciphertext_ext[i*4+3];
+
+end
+
+assign sh_key_ext[64*d-1:0] = sh_key[64*d-1:0];
+assign sh_key_ext[80*d-1:64*d] = 64'h0;
+assign sh_zero_key[80*d-1:0] = 320'h0;
 
 ///// Control pipe for the round
 wire [7:0] ctrl_RCON_in, ctrl_RCON_KS, ctrl_RCON_out;
@@ -67,15 +92,15 @@ wire feedback_valid = (ctrl_RCON_out != 8'h0);
 wire feedback_finish = (ctrl_RCON_out == 8'h6c);
 
 wire [8*d-1:0] round_sh_RCON;
-MSKcst #(.d(d),.count(8))
+MSKcst #(.d(d/2),.count(8))
 cst_RCON(
     .cst(ctrl_RCON_KS),
     .out(round_sh_RCON)
 );
 
 ////// Round logic
-wire [128*d-1:0] round_sh_state_in, round_sh_key_in;
-wire [128*d-1:0] round_sh_state_out, round_sh_key_out;
+wire [128*d-1:0] round_sh_state_in, round_sh_state_out;
+wire [ 80*d-1:0] round_sh_key_in, round_sh_key_out;
 wire [128*d-1:0] round_sh_state_SR_out, round_sh_state_AK_out;
 wire round_cleaning_on;
 MSKaes_128bits_round_with_cleaning #(.d(d),.LATENCY(LATENCY))
@@ -97,7 +122,9 @@ round_logic(
 assign ready = ~feedback_valid;
     
 ////// Input stage             
-wire [128*d-1:0] to_sh_state, to_sh_key;
+wire [128*d-1:0] to_sh_state;
+wire [ 80*d-1:0] to_sh_key;
+wire [128*d-1:0] to_AK_key;
 wire [8*d-1:0] to_RCON;
 reg [7:0] from_RCON;
 wire [128*d-1:0] sh_postAK; 
@@ -119,27 +146,41 @@ inreg_state(
     .out(round_sh_state_in)
 );
 
-wire [128*d-1:0] sh_key_postLM; 
-MSKreg #(.d(d),.count(128))
+wire [80*d-1:0] sh_key_postLM; 
+MSKreg #(.d(d),.count(80))
 inreg_key(
     .clk(clk),
-    .in(/*to_sh_key*/ sh_key_postLM),
+    .in(sh_key_postLM),
     .out(round_sh_key_in)
 );
 
-assign sh_key_postLM[0 +: 12*8*d] = to_sh_key[0 +: 12*8*d];
+assign sh_key_postLM[0 +: 48*d] = to_sh_key[0 +: 48*d];
 
-MSKlin_map #(.d(d), .count(4))
+MSKlin_map #(.d(d/2), .count(8))
 lin_map_key(
-    .sh_state_in(to_sh_key[12*8*d +: 4*8*d]),
-    .sh_state_out(sh_key_postLM[12*8*d +: 4*8*d])
+    .sh_state_in(to_sh_key[48*d +: 32*d]),
+    .sh_state_out(sh_key_postLM[48*d +: 32*d])
     );
 
+genvar j;
+for (i = 0; i < 32; i=i+1) begin: key_to_ak_word
+    for(j = 0; j < 4; j=j+1) begin: key_to_ak_bit
+        assign to_AK_key[j*4*32 + i*4 + 0] = to_sh_key[j*2*32 + i*2 + 0];
+        assign to_AK_key[j*4*32 + i*4 + 3] = to_sh_key[j*2*32 + i*2 + 1];
+        assign to_AK_key[j*4*32 + i*4 + 1] = to_sh_key[128*2 + i*2 + 0]; // the last two shares for each key word are the same
+        assign to_AK_key[j*4*32 + i*4 + 2] = to_sh_key[128*2 + i*2 + 1];        
+    end
+
+end
+wire [127:0] key;
+for (i = 0; i < 128; i=i+1) begin
+    assign key[i] = ^ to_AK_key[i*4 +: 4];
+end
 // AK
 MSKaes_128bits_AK #(.d(d))
 AKmod(
     .sh_state_in(to_sh_state),
-    .sh_key_in(to_sh_key),
+    .sh_key_in(to_AK_key),
     .sh_state_out(sh_postAK)
 );
 
@@ -152,6 +193,7 @@ lin_map(
 
 // Constant sharing of 0
 wire [128*d-1:0] sh_zero;
+
 
 // SB 
 MSKmux #(.d(d), .count(128))
@@ -183,23 +225,16 @@ wire [128*d-1:0] sh_state_tmp;
 MSKmux #(.d(d),.count(128))
 mux_state_in(
     .sel(fetch_in),
-    .in_true(sh_plaintext),
+    .in_true(sh_plaintext_ext),
     .in_false(sh_zero), // sh_key
     .out(sh_state_tmp)
 );
 
-wire [128*d-1:0] sh_key_tmp;
-MSKmux #(.d(d),.count(128))
-mux_key_in(
-    .sel(fetch_in),
-    .in_true(sh_key),
-    .in_false(sh_zero), // sh_plaintext
-    .out(sh_key_tmp)
-);
+wire [48*d + 32*d-1:0] sh_key_tmp;
+assign sh_key_tmp = fetch_in ? sh_key_ext: sh_zero_key;
+
 
 wire [128*d-1:0] sh_feedback_state_choice;
-// wire [256*d-1:0] rndfeed;
-// assign rndfeed = {RandomZw,RandomBw};
 MSKmux #(.d(d),.count(128))
 mux_feedback_choice(
     .sel(feedback_finish),
@@ -219,7 +254,7 @@ mux_feedback_state(
 // assign to_sh_state = feedback_valid ? sh_feedback_state_choice : (fetch_in ? sh_plaintext : sh_feedback_state_choice);//;sh_feedback_state_choice
 
 
-MSKmux #(.d(d),.count(128))
+MSKmux #(.d(d),.count(80))
 mux_feedback_key(
     .sel(feedback_valid),
     .in_true(round_sh_key_out),
@@ -252,7 +287,7 @@ mux_ciphervalid(
     .sel(cipher_valid),
     .in_true(round_sh_state_in/*round_sh_state_AK_out*/),
     .in_false(sh_zero),//round_sh_state_AK_out
-    .out(sh_ciphertext)
+    .out(sh_ciphertext_ext)
 );
 
 

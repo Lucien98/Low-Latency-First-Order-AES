@@ -49,9 +49,9 @@ input clk;
 input valid_in;
 output ready;
 output cipher_valid;
-input [128*d-1:0] sh_plaintext;
-input [128*d-1:0] sh_key;
-output [128*d-1:0] sh_ciphertext;
+input [128*d/2-1:0] sh_plaintext;
+input [128*d/2-1:0] sh_key;
+output [128*d/2-1:0] sh_ciphertext;
 // PRNG
 input [79:0] prng_seed;
 input prng_start_reseed;

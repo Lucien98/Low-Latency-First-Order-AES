@@ -24,10 +24,10 @@ module MSKaes_128bits_round_with_cleaning
 // Ports
 input clk;
 input [128*d-1:0] sh_state_in;
-input [128*d-1:0] sh_key_in;
+input [80*d-1:0] sh_key_in;
 input [8*d-1:0] sh_RCON;
 output [128*d-1:0] sh_state_out;
-output [128*d-1:0] sh_key_out;
+output [80*d-1:0] sh_key_out;
 output [128*d-1:0] sh_state_SR_out;
 // output [128*d-1:0] sh_state_AK_out;
 
@@ -38,16 +38,17 @@ input [20*rnd_busb-1:0] RandomBw;
 input cleaning_on;
 
 // Constant 0
-wire [128*d-1:0] sh_zero;
-MSKcst #(.d(d), .count(128))
+wire [80*d-1:0] sh_zero;
+
+MSKcst #(.d(d), .count(80))
 cst_sh_zero(
-    .cst(128'h0),
+    .cst(80'h0),
     .out(sh_zero)
 );
 
 // KS logic
-wire [128*d-1:0] sh_key_in_cleaned;
-MSKmux #(.d(d), .count(128))
+wire [80*d-1:0] sh_key_in_cleaned;
+MSKmux #(.d(d), .count(80))
 mux_clean_key(
     .sel(cleaning_on),
     .in_true(sh_zero),
@@ -55,7 +56,8 @@ mux_clean_key(
     .out(sh_key_in_cleaned)
 );
 
-MSKaes_128bits_KS_round #(.d(d), .LATENCY(LATENCY))
+
+MSKaes_128bits_KS_round #(.d(d/2), .LATENCY(LATENCY))
 KS_mod(
     .clk(clk),
     .sh_key_in(sh_key_in_cleaned),

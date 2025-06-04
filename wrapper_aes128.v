@@ -17,9 +17,9 @@
 module wrapper_aes128
 #
 (
-    parameter d = `DEFAULTSHARES,
+    parameter d = 2,//`DEFAULTSHARES,
     parameter PRNG_MAX_UNROLL = 512,
-    parameter LATENCY = `DEFAULTLATENCY
+    parameter LATENCY = 3//`DEFAULTLATENCY
 )
 (
     // Global

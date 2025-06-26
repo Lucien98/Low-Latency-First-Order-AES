@@ -86,6 +86,7 @@ wire [8*d*2-1:0] byte_in[3:0];
 wire [8*d*2-1:0] byte_out[3:0];
 
 // todo: comment
+/*
 wire [7:0] rec_byte_in[3:0];
 wire [7:0] rec_byte_out[3:0];
 
@@ -105,6 +106,7 @@ for (i = 0; i < 4; i=i+1) begin: rec_blk
     assign rec_byteblk_in[i] = byte_in[i][7:0] ^ byte_in[i][15:8] ^ byte_in[i][23:16] ^ byte_in[i][31:24];
     assign rec_byteblk_out[i] = byte_out[i][7:0] ^ byte_out[i][15:8] ^ byte_out[i][23:16] ^ byte_out[i][31:24];
 end
+*/
 
 
 for (k = 0; k < 4; k=k+1) begin
@@ -125,9 +127,10 @@ wire [ 7:0] guardsS3[3:0];
 
 generate
 for(i=0;i<4;i=i+1) begin: guards
-    assign guardsS1[i] = shblk_key_in[(i+1)*8*d +: 4];
-    assign guardsS2[i] = {shblk_key_byte_pipeline[(i+1) % 16][0][7:4], shblk_key_byte_pipeline[(i+2) % 16][0][7:0]};
-    assign guardsS3[i] = shblk_key_byte_pipeline[(i+3) % 16][1][7:0];
+    assign guardsS1[i] = shblk_key_in[(i+1+4)*8*d +: 4];
+    assign guardsS2[i] = {shblk_key_byte_pipeline[(i+1+4) % 16][0][7:4], shblk_key_byte_pipeline[(i+2+4) % 16][0][7:0]};
+    // assign guardsS2[i] = RandomZw[i*rnd_busz +: rnd_busz];
+    assign guardsS3[i] = shblk_key_byte_pipeline[(i+4) % 16][1][7:0];
 end
 endgenerate
 

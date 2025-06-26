@@ -8,7 +8,7 @@
 module MSKaes_128bits_round_based
 #
 (
-    parameter d=`DEFAULTSHARES,
+    parameter d=4,//`DEFAULTSHARES,
     parameter LATENCY = 2//`DEFAULTLATENCY
 )
 (

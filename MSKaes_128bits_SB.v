@@ -86,34 +86,55 @@ wire [ 7:0] guardsS3[15:0];
 // assign guardsS2[1] = {sbox_in0S2[2][3:0], sbox_in0S2[3][7:0]}
 
 /*Guards for Stage 1*/
-/*Guards for Stage 2*/
 generate
 for(i=0;i<16;i=i+1) begin: guards
     assign guardsS1[i] = sbox_in0S1[(i+1) % 16][3:0];
-    assign guardsS2[i] = {sbox_in0S2[(i+1) % 16][7:4], sbox_in0S2[(i+2) % 16][7:0]};
+    // assign guardsS2[i] = RandomZw[i*rnd_busz +: rnd_busz];
+    // assign guardsS2[i] = {sbox_in0S2[(i+1) % 16][7:4], sbox_in0S2[(i+2) % 16][7:0]};
 end
 endgenerate
 
+/*Guards for Stage 2*/
+assign guardsS2[ 0] = {sbox_in0S2[ 8], sbox_in0S2[12][3:0]};
+assign guardsS2[ 5] = {sbox_in0S2[13], sbox_in0S2[ 1][3:0]};
+assign guardsS2[10] = {sbox_in0S2[ 2], sbox_in0S2[ 6][3:0]};
+assign guardsS2[15] = {sbox_in0S2[ 7], sbox_in0S2[11][3:0]};
+
+assign guardsS2[ 4] = {sbox_in0S2[12], sbox_in0S2[ 0][3:0]};
+assign guardsS2[ 9] = {sbox_in0S2[ 1], sbox_in0S2[ 5][3:0]};
+assign guardsS2[14] = {sbox_in0S2[ 6], sbox_in0S2[10][3:0]};
+assign guardsS2[ 3] = {sbox_in0S2[11], sbox_in0S2[15][3:0]};
+
+assign guardsS2[ 8] = {sbox_in0S2[ 0], sbox_in0S2[ 4][3:0]};
+assign guardsS2[13] = {sbox_in0S2[ 5], sbox_in0S2[ 9][3:0]};
+assign guardsS2[ 2] = {sbox_in0S2[10], sbox_in0S2[14][3:0]};
+assign guardsS2[ 7] = {sbox_in0S2[15], sbox_in0S2[ 3][3:0]};
+
+assign guardsS2[12] = {sbox_in0S2[ 4], sbox_in0S2[ 8][3:0]};
+assign guardsS2[ 1] = {sbox_in0S2[ 9], sbox_in0S2[13][3:0]};
+assign guardsS2[ 6] = {sbox_in0S2[14], sbox_in0S2[ 2][3:0]};
+assign guardsS2[11] = {sbox_in0S2[ 3], sbox_in0S2[ 7][3:0]};
+
 /*Guards for Stage 3*/
-assign guardsS3[0] = sbox_in0S3[4];
-assign guardsS3[1] = sbox_in0S3[9];
-assign guardsS3[2] = sbox_in0S3[14];
-assign guardsS3[3] = sbox_in0S3[3];
+assign guardsS3[ 0] = sbox_in0S3[ 4];
+assign guardsS3[ 5] = sbox_in0S3[ 9];
+assign guardsS3[10] = sbox_in0S3[14];
+assign guardsS3[15] = sbox_in0S3[ 3];
 
-assign guardsS3[4] = sbox_in0S3[8];
-assign guardsS3[5] = sbox_in0S3[13];
-assign guardsS3[6] = sbox_in0S3[2];
-assign guardsS3[7] = sbox_in0S3[7];
+assign guardsS3[ 4] = sbox_in0S3[8];
+assign guardsS3[ 9] = sbox_in0S3[13];
+assign guardsS3[14] = sbox_in0S3[ 2];
+assign guardsS3[ 3] = sbox_in0S3[ 7];
 
-assign guardsS3[8] = sbox_in0S3[12];
-assign guardsS3[9] = sbox_in0S3[1];
-assign guardsS3[10] = sbox_in0S3[6];
-assign guardsS3[11] = sbox_in0S3[11];
+assign guardsS3[ 8] = sbox_in0S3[12];
+assign guardsS3[13] = sbox_in0S3[ 1];
+assign guardsS3[ 2] = sbox_in0S3[ 6];
+assign guardsS3[ 7] = sbox_in0S3[11];
 
 assign guardsS3[12] = sbox_in0S3[0];
-assign guardsS3[13] = sbox_in0S3[5];
-assign guardsS3[14] = sbox_in0S3[10];
-assign guardsS3[15] = sbox_in0S3[15];
+assign guardsS3[ 1] = sbox_in0S3[5];
+assign guardsS3[ 6] = sbox_in0S3[10];
+assign guardsS3[11] = sbox_in0S3[15];
 
 // Create the SBOX
 generate

@@ -84,9 +84,9 @@ wire [ 7:0] guardsS3[3:0];
 
 generate
 for(i=0;i<4;i=i+1) begin: guards
-    assign guardsS1[i] = shblk_key_in[(i+1)*8*d +: 8];//sh_key_byte_pipeline[(i+1) % 16][0][3:0];
-    assign guardsS2[i] = {shblk_key_byte_pipeline[(i+1) % 16][0][7:4], shblk_key_byte_pipeline[(i+2) % 16][0][7:0]};
-    assign guardsS3[i] = shblk_key_byte_pipeline[(i+3) % 16][1][3:0];
+    assign guardsS1[i] = shblk_key_in[(i+1+4)*8*d +: 8];//sh_key_byte_pipeline[(i+1) % 16][0][3:0];
+    assign guardsS2[i] = {shblk_key_byte_pipeline[(i+1+4) % 16][0][7:4], shblk_key_byte_pipeline[(i+2+4) % 16][0][7:0]};
+    assign guardsS3[i] = shblk_key_byte_pipeline[(i+4) % 16][1][3:0];
 end
 endgenerate
 

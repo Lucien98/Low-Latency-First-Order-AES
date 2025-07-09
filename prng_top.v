@@ -50,11 +50,11 @@ module prng_top
 );
 
 // Generation parameters 
-localparam N_PRNGS = $rtoi($ceil($itor(RND) / MAX_UNROLL));
-localparam UNROLL = $rtoi($ceil($itor(RND) / N_PRNGS));
+// localparam N_PRNGS = $rtoi($ceil($itor(RND) / MAX_UNROLL));
+// localparam UNROLL = $rtoi($ceil($itor(RND) / N_PRNGS));
 
-// localparam N_PRNGS = RND / MAX_UNROLL;
-// localparam UNROLL = RND / N_PRNGS;
+localparam N_PRNGS = (RND + MAX_UNROLL -1) / MAX_UNROLL;
+localparam UNROLL = (RND + N_PRNGS -1) / N_PRNGS;
 
 // PRNG global control
 reg core_feed_seed;
@@ -63,8 +63,8 @@ wire [UNROLL*N_PRNGS-1:0] random_bits;
 
 // Number of cycles required to init the PRNGs with new randomness
 // We ensure to do at least NINIT shifts.
-localparam LAT_INIT = $rtoi($ceil($itor(NINIT) / UNROLL));
-// localparam LAT_INIT = NINIT / UNROLL;
+// localparam LAT_INIT = $rtoi($ceil($itor(NINIT) / UNROLL));
+localparam LAT_INIT = (NINIT + UNROLL -1) / UNROLL;
 
 // FSM state
 localparam

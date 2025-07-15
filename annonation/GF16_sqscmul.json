@@ -1,0 +1,11 @@
+{
+    "in00" : {"type": "S", "len": 4},
+    "in01" : {"type": "S", "len": 4},
+    "in10" : {"type": "S", "len": 4},
+    "in11" : {"type": "S", "len": 4},
+    "out0" : {"type": "O", "len": 4},
+    "out1" : {"type": "O", "len": 4},
+    "r0" : {"type": "M", "len": "?"}, 
+    "r1" : {"type": "M", "len": "?"}, 
+    "CLK": {"type": 1, "len": 1}
+}

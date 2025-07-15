@@ -162,10 +162,6 @@ make syn_aes_core_prolead
 ```bash
 make ev
 ```
-make low_lat_31/prolead/MSKaes_128bits_round_based SHARES=4 LATENCY=2
-make verilate_31
-make detect_leakage_31
-
 
 ## License
 

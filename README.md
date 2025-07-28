@@ -13,10 +13,10 @@ We also include the source code of maskVerif and Prover for formal verification 
 ## Run the testbenchs
 You can use verilator to check the correctness of the AES encryption.
 
-First, install `verilator` and `make`.
+First, install `verilator`, `make`, and `g++`.
 ```bash
 sudo apt update
-sudo apt install -y verilator make
+sudo apt install -y verilator make g++
 ```
 
 Then run the testbenchs.
@@ -74,6 +74,7 @@ The results can be seen in folders like:
 
 **Get the area data**
 ```bash
+# sudo apt install python-is-python3 # for ubuntu 25.04
 python get_stats.py syn/low_lat_31/sbox
 python get_stats.py syn/low_lat_41/sbox
 python get_stats.py syn/low_lat_31/full_aes/MSKaes_128bits_round_based RandomZw RandomBw

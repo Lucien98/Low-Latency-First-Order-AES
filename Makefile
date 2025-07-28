@@ -159,6 +159,8 @@ prover:
 NOTION ?= NI
 
 benchs:
+	make sqscmul
+	make sbox_stage23
 	python make_mv.py  --circ syn/low_lat_41/sbox/sqscmul/pre.json --spec annonation/GF16_sqscmul.json --notion SNI > syn/low_lat_41/sbox/sqscmul/sqscmul.mv
 	python make_mv.py  --circ syn/low_lat_41/sbox/stage23/pre.json --spec annonation/stage23_opt.json --notion Probing > syn/low_lat_41/sbox/stage23/stage23.mv
 

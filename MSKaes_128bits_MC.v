@@ -27,7 +27,7 @@ end
 endgenerate
 
 // Create the instances of Mixcolumn multiplication
-generate
+/*generate
 for(i=0;i<4;i=i+1) begin: mulcol
     MSKaesMC #(.d(d))
     mulMC(
@@ -42,7 +42,55 @@ for(i=0;i<4;i=i+1) begin: mulcol
     );
 end
 endgenerate
+*/
 
+MSKaesMC #(.d(d))
+mulMC0(
+    .a0(sh_byte_in[0*4+0]),
+    .a1(sh_byte_in[0*4+1]),
+    .a2(sh_byte_in[0*4+2]),
+    .a3(sh_byte_in[0*4+3]),
+    .b0(sh_byte_out[0*4+0]),
+    .b1(sh_byte_out[0*4+1]),
+    .b2(sh_byte_out[0*4+2]),
+    .b3(sh_byte_out[0*4+3])
+);
+
+MSKaesMC #(.d(d))
+mulMC1(
+    .a0(sh_byte_in[1*4+0]),
+    .a1(sh_byte_in[1*4+1]),
+    .a2(sh_byte_in[1*4+2]),
+    .a3(sh_byte_in[1*4+3]),
+    .b0(sh_byte_out[1*4+0]),
+    .b1(sh_byte_out[1*4+1]),
+    .b2(sh_byte_out[1*4+2]),
+    .b3(sh_byte_out[1*4+3])
+);
+
+MSKaesMC #(.d(d))
+mulMC2(
+    .a0(sh_byte_in[2*4+0]),
+    .a1(sh_byte_in[2*4+1]),
+    .a2(sh_byte_in[2*4+2]),
+    .a3(sh_byte_in[2*4+3]),
+    .b0(sh_byte_out[2*4+0]),
+    .b1(sh_byte_out[2*4+1]),
+    .b2(sh_byte_out[2*4+2]),
+    .b3(sh_byte_out[2*4+3])
+);
+
+MSKaesMC #(.d(d))
+mulMC3(
+    .a0(sh_byte_in[3*4+0]),
+    .a1(sh_byte_in[3*4+1]),
+    .a2(sh_byte_in[3*4+2]),
+    .a3(sh_byte_in[3*4+3]),
+    .b0(sh_byte_out[3*4+0]),
+    .b1(sh_byte_out[3*4+1]),
+    .b2(sh_byte_out[3*4+2]),
+    .b3(sh_byte_out[3*4+3])
+);
 
 // Re-create output bus
 generate

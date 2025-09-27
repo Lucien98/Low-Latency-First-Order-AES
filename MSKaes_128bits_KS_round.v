@@ -84,19 +84,19 @@ wire [ 7:0] guardsS3[3:0];
 
 generate
 for(i=0;i<4;i=i+1) begin: guards
-    assign guardsS1[i] = shblk_key_in[(i+1+4)*8*d +: 8];//sh_key_byte_pipeline[(i+1) % 16][0][3:0];
+    assign guardsS1[i] = shblk_key_in[(i+1+4)*8*d +: 4];//sh_key_byte_pipeline[(i+1) % 16][0][3:0];
     assign guardsS2[i] = {shblk_key_byte_pipeline[(i+1+4) % 16][0][7:4], shblk_key_byte_pipeline[(i+2+4) % 16][0][7:0]};
-    assign guardsS3[i] = shblk_key_byte_pipeline[(i+4) % 16][1][3:0];
+    assign guardsS3[i] = shblk_key_byte_pipeline[(i+4) % 16][1];
 end
 endgenerate
 
 
 // Sbox for the key scheduling
 wire [8*d-1:0] sh_lcol_SB [3:0];
-generate
-for(i=0;i<4;i=i+1) begin: sbox_isnt
-    three_stage_sbox sbox_unit(.in0(byte_in[i][7:0]), .in1(byte_in[i][15:8]), .out0(byte_out[i][7:0]), .out1(byte_out[i][15:8]), .r({RandomZw[i*rnd_busz +: rnd_busz], RandomBw[i*rnd_busb +: rnd_busb], guardsS3[i], guardsS2[i], guardsS1[i]}), .CLK(clk)
-        );
+// generate
+// for(i=0;i<4;i=i+1) begin: sbox_isnt
+//     three_stage_sbox sbox_unit(.in0(byte_in[i][7:0]), .in1(byte_in[i][15:8]), .out0(byte_out[i][7:0]), .out1(byte_out[i][15:8]), .r({RandomZw[i*rnd_busz +: rnd_busz], RandomBw[i*rnd_busb +: rnd_busb], guardsS3[i], guardsS2[i], guardsS1[i]}), .CLK(clk)
+//         );
 
 /*
     aes_sbox_dom #(.d(d))
@@ -108,8 +108,48 @@ for(i=0;i<4;i=i+1) begin: sbox_isnt
         .sboxOut(sh_lcol_SB[i])
     );
 */    
-end
-endgenerate
+// end
+// endgenerate
+
+    // 实例化第1个S-box
+    three_stage_sbox sbox_unit0 (
+        .in0(byte_in[0][7:0]), 
+        .in1(byte_in[0][15:8]), 
+        .out0(byte_out[0][7:0]), 
+        .out1(byte_out[0][15:8]), 
+        .r({RandomZw[0 +: 2], RandomBw[0 +: 2], guardsS3[0], guardsS2[0], guardsS1[0]}), 
+        .CLK(clk)
+    );
+
+    // 实例化第2个S-box
+    three_stage_sbox sbox_unit1 (
+        .in0(byte_in[1][7:0]), 
+        .in1(byte_in[1][15:8]), 
+        .out0(byte_out[1][7:0]), 
+        .out1(byte_out[1][15:8]), 
+        .r({RandomZw[2 +: 2], RandomBw[2 +: 2], guardsS3[1], guardsS2[1], guardsS1[1]}), 
+        .CLK(clk)
+    );
+
+    // 实例化第3个S-box
+    three_stage_sbox sbox_unit2 (
+        .in0(byte_in[2][7:0]), 
+        .in1(byte_in[2][15:8]), 
+        .out0(byte_out[2][7:0]), 
+        .out1(byte_out[2][15:8]), 
+        .r({RandomZw[4 +: 2], RandomBw[4 +: 2], guardsS3[2], guardsS2[2], guardsS1[2]}), 
+        .CLK(clk)
+    );
+
+    // 实例化第4个S-box
+    three_stage_sbox sbox_unit3 (
+        .in0(byte_in[3][7:0]), 
+        .in1(byte_in[3][15:8]), 
+        .out0(byte_out[3][7:0]), 
+        .out1(byte_out[3][15:8]), 
+        .r({RandomZw[6 +: 2], RandomBw[6 +: 2], guardsS3[3], guardsS2[3], guardsS1[3]}), 
+        .CLK(clk)
+    );
 
 // From Sbox rotation and RCON addition
 wire [8*d-1:0] sh_lcol_SB_RCON [3:0];

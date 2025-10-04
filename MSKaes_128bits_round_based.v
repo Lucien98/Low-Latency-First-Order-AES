@@ -172,10 +172,12 @@ for (i = 0; i < 32; i=i+1) begin: key_to_ak_word
     end
 
 end
+/*
 wire [127:0] key;
 for (i = 0; i < 128; i=i+1) begin
     assign key[i] = ^ to_AK_key[i*4 +: 4];
 end
+*/
 // AK
 MSKaes_128bits_AK #(.d(d))
 AKmod(

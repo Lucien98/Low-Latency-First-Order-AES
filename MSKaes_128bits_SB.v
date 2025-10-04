@@ -88,7 +88,7 @@ wire [ 7:0] guardsS3[15:0];
 /*Guards for Stage 1*/
 generate
 for(i=0;i<16;i=i+1) begin: guards
-    assign guardsS1[i] = sbox_in0S1[(i+1) % 16][3:0];
+    assign guardsS1[i] = sbox_in0S1[(i+1) % 16][7:4];
     // assign guardsS2[i] = RandomZw[i*rnd_busz +: rnd_busz];
     // assign guardsS2[i] = {sbox_in0S2[(i+1) % 16][7:4], sbox_in0S2[(i+2) % 16][7:0]};
 end

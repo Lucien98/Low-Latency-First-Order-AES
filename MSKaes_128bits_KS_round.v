@@ -52,6 +52,7 @@ assign sh_key_back[128+:64] = sh_key_in_back[128+:64] ^ sh_key_in_back[256+:64];
 assign sh_key_back[192+:64] = sh_key_in_back[192+:64] ^ sh_key_in_back[256+:64];
 
 // todo: comment
+/*
 wire [127:0] rec_key;
 generate
 for(i=0;i<128;i=i+1) begin: bit_c
@@ -59,6 +60,7 @@ for(i=0;i<128;i=i+1) begin: bit_c
 end
 endgenerate
 
+*/
 
 wire [128*d-1:0] shblk_key_in;
 

@@ -138,6 +138,7 @@ endgenerate
 
 
 // Sbox for the key scheduling
+/*
 generate
 for(i=0;i<4;i=i+1) begin: sbox_isnt
     two_stage_sbox sbox_unit(.in0(byte_in[i][7:0]), .in1(byte_in[i][23:16]), .in2(byte_in[i][31:24]), .in3(byte_in[i][15:8]), .out0(byte_out[i][7:0]), .out1(byte_out[i][23:16]), .out2(byte_out[i][31:24]), .out3(byte_out[i][15:8]), .r({RandomZw[i*rnd_busz +: rnd_busz], RandomBw[i*rnd_busb +: rnd_busb], guardsS3[i], guardsS2[i], guardsS1[i]}), .CLK(clk)
@@ -145,6 +146,58 @@ for(i=0;i<4;i=i+1) begin: sbox_isnt
 
 end
 endgenerate
+*/
+two_stage_sbox sbox_unit_0 (
+    .in0(byte_in[0][7:0]),
+    .in1(byte_in[0][23:16]),
+    .in2(byte_in[0][31:24]),
+    .in3(byte_in[0][15:8]),
+    .out0(byte_out[0][7:0]),
+    .out1(byte_out[0][23:16]),
+    .out2(byte_out[0][31:24]),
+    .out3(byte_out[0][15:8]),
+    .r({RandomZw[0*2 +: 2], RandomBw[0*2 +: 2], guardsS3[0], guardsS2[0], guardsS1[0]}),
+    .CLK(clk)
+);
+
+two_stage_sbox sbox_unit_1 (
+    .in0(byte_in[1][7:0]),
+    .in1(byte_in[1][23:16]),
+    .in2(byte_in[1][31:24]),
+    .in3(byte_in[1][15:8]),
+    .out0(byte_out[1][7:0]),
+    .out1(byte_out[1][23:16]),
+    .out2(byte_out[1][31:24]),
+    .out3(byte_out[1][15:8]),
+    .r({RandomZw[1*2 +: 2], RandomBw[1*2 +: 2], guardsS3[1], guardsS2[1], guardsS1[1]}),
+    .CLK(clk)
+);
+
+two_stage_sbox sbox_unit_2 (
+    .in0(byte_in[2][7:0]),
+    .in1(byte_in[2][23:16]),
+    .in2(byte_in[2][31:24]),
+    .in3(byte_in[2][15:8]),
+    .out0(byte_out[2][7:0]),
+    .out1(byte_out[2][23:16]),
+    .out2(byte_out[2][31:24]),
+    .out3(byte_out[2][15:8]),
+    .r({RandomZw[2*2 +: 2], RandomBw[2*2 +: 2], guardsS3[2], guardsS2[2], guardsS1[2]}),
+    .CLK(clk)
+);
+
+two_stage_sbox sbox_unit_3 (
+    .in0(byte_in[3][7:0]),
+    .in1(byte_in[3][23:16]),
+    .in2(byte_in[3][31:24]),
+    .in3(byte_in[3][15:8]),
+    .out0(byte_out[3][7:0]),
+    .out1(byte_out[3][23:16]),
+    .out2(byte_out[3][31:24]),
+    .out3(byte_out[3][15:8]),
+    .r({RandomZw[3*2 +: 2], RandomBw[3*2 +: 2], guardsS3[3], guardsS2[3], guardsS1[3]}),
+    .CLK(clk)
+);
 
 // From Sbox rotation and RCON addition
 wire [8*d-1:0] sh_lcol_SB_RCON [3:0];

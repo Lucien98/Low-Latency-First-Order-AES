@@ -143,16 +143,6 @@ for(i=0;i<4;i=i+1) begin: sbox_isnt
     two_stage_sbox sbox_unit(.in0(byte_in[i][7:0]), .in1(byte_in[i][23:16]), .in2(byte_in[i][31:24]), .in3(byte_in[i][15:8]), .out0(byte_out[i][7:0]), .out1(byte_out[i][23:16]), .out2(byte_out[i][31:24]), .out3(byte_out[i][15:8]), .r({RandomZw[i*rnd_busz +: rnd_busz], RandomBw[i*rnd_busb +: rnd_busb], guardsS3[i], guardsS2[i], guardsS1[i]}), .CLK(clk)
         );
 
-/*
-    aes_sbox_dom #(.d(d))
-    sbox_unit(
-        .clk(clk),
-        .sboxIn(sh_key_in[(12+i)*8*d +: 8*d]),
-        .RandomZw(RandomZw[i*rnd_busz +: rnd_busz]),
-        .RandomBw(RandomBw[i*rnd_busb +: rnd_busb]),
-        .sboxOut(sh_lcol_SB[i])
-    );
-*/    
 end
 endgenerate
 

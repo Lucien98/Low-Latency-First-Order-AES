@@ -236,22 +236,28 @@ assign to_RCON = fetch_feedback_RCON ? ctrl_RCON_out : RCON_tmp;
 assign ctrl_RCON_in = from_RCON;
 
 ///// Cipher valid logic
-reg reg_cipher_valid;
+// In the original imported wrapper, feedback_finish was first registered and
+// the registered state boundary was exported one clock later.  That gives one
+// extra edge after the final AES AddRoundKey.  The final round value sh_postAK
+// is already the combinational AddRoundKey result in the feedback_finish cycle,
+// so expose it immediately and keep the delayed pulse only for the cleaning
+// cycle.  This matches the 40-edge schedule described in the paper.
+reg reg_cleaning_on;
 always@(posedge clk)
 if(~nrst) begin
-    reg_cipher_valid = 0;
+    reg_cleaning_on <= 1'b0;
 end else begin
-    reg_cipher_valid = feedback_finish;
+    reg_cleaning_on <= feedback_finish;
 end
-assign cipher_valid = reg_cipher_valid;//feedback_finish;
+assign cipher_valid = feedback_finish;
 
-assign round_cleaning_on = reg_cipher_valid;
+assign round_cleaning_on = reg_cleaning_on;
 
 MSKmux #(.d(d),.count(128))
 mux_ciphervalid(
     .sel(cipher_valid),
-    .in_true(round_sh_state_in/*round_sh_state_AK_out*/),
-    .in_false(sh_zero),//round_sh_state_AK_out
+    .in_true(sh_postAK),
+    .in_false(sh_zero),
     .out(sh_ciphertext)
 );
 
